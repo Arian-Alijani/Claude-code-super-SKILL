@@ -1,48 +1,71 @@
-# Token economy — full playbook
+# Token economy
 
-Goal: minimum tokens, zero quality loss. Two channels: output (what you say) and input (what you read/carry).
+Goal: maximize useful signal per token without reducing correctness, maintainability, or safety. Output brevity is a small lever; context selection and avoiding repeated work are larger levers.
 
-## Output compression (caveman method)
+## Context budget
 
-Levels — default `full`. User may switch: "lite" / "ultra".
+1. **Map before reading:** list structure and repository instructions; use glob/search to locate likely files.
+2. **Read just in time:** start with symbols or relevant ranges. Expand only when dependencies or control flow require it.
+3. **Batch independent discovery:** combine unrelated searches and reads. Keep dependent steps sequential.
+4. **Control tool output:** request concise formats, targeted tests, and bounded logs. Preserve the raw source when truncation could hide the cause.
+5. **Avoid duplicate context:** do not re-read unchanged files, restate the full request, or repeat settled decisions.
+6. **Externalize durable state:** for long tasks, track decisions, completed checks, blockers, and next steps in the task system or a user-approved project artifact.
+7. **Isolate exploration:** when subagents exist, delegate independent high-volume research and request a short evidence-backed return. Do not delegate tightly coupled edits merely to appear parallel.
 
-| Level | Rule |
-|---|---|
-| lite | No filler/hedging. Full sentences kept. |
-| full | Drop articles, fragments OK, short synonyms (fix not "implement a solution"). |
-| ultra | Strip conjunctions where unambiguous. One word when one word enough. Each fact once. |
+## Retrieval ladder
 
-Hard rules all levels:
-- Code, commands, error strings, identifiers: byte-exact, never compressed.
-- No tool-call narration ("Now I will run..."). Just run.
-- No decorative tables/emoji/headers for short answers.
-- No restating the question. No summary of a summary.
-- Quote shortest decisive log line, never full dump.
-- No self-reference to the style. Never announce mode.
+Use the cheapest sufficient step and stop when evidence is enough:
 
-Auto-clarity — drop compression for:
-- Security warnings, irreversible/destructive confirmations.
-- Multi-step sequences where fragment order risks misread.
-- User confused or repeats question.
-Resume compression after clear part done.
+1. file names and metadata;
+2. search matches with line context;
+3. relevant function or section;
+4. whole file only when its structure matters;
+5. dependency or repository-wide trace only when local evidence is insufficient.
 
-## Input economy (bigger lever than output)
+For generated files, minified assets, lockfiles, and large logs, search or use a parser instead of loading them wholesale.
 
-- Grep/glob first, read second. Read with offset/limit for large files; never whole file when a region suffices.
-- Never re-read a file you just wrote — you know its content.
-- Batch independent tool calls in one block.
-- Pipe noisy commands: `| tail -20`, `2>&1 | grep -i error` — but keep raw output reachable when debugging (compressed-away error line costs more than it saves).
-- Prefer targeted tests over full suite while iterating; full suite once before done.
+## Response compression
 
-## Context lifecycle
+Default to concise, readable prose:
 
-- One task = one focused context. Unrelated new task → suggest fresh session.
-- After milestone, emit handoff receipt (5 lines max): changed files, learned facts vs guesses, verified/unverified, rollback point, next safe action. Prevents costly context reconstruction — the biggest hidden token sink.
-- Don't carry dead context: stale plans, superseded attempts — state final decision once, move on.
+- omit greetings, filler, repeated conclusions, and routine tool narration;
+- state result, decisive evidence, and next action;
+- use standard terminology; invented abbreviations often tokenize poorly and reduce clarity;
+- keep code, commands, paths, identifiers, exact errors, and citations unchanged;
+- use tables only when comparison is clearer than bullets;
+- do not compress an explanation enough to trigger another clarification round.
 
-## Anti-patterns (measured net-negative)
+User may request `lite`, `full`, or `ultra` brevity. Treat them as prose preferences, never reasoning or code-quality levels.
 
-- Invented abbreviations (cfg/impl/fn/req): tokenizer splits same, zero savings, clarity lost.
-- Arrows (→) in prose as connector: own token, saves nothing. (Table/plan usage OK.)
-- Truncating command output so hard the agent must rerun the command — savings handed back with interest.
-- Compressing so much that user needs clarification round-trip: one clarification costs more than the compression saved.
+## Long-session control
+
+At milestones, retain a compact receipt:
+
+- goal and current state;
+- decisions plus their evidence;
+- changed files;
+- checks passed/failed/not run;
+- blocker or next safe action.
+
+Before compaction, prioritize unresolved constraints, public contracts, failed hypotheses, and rollback points. Discard superseded plans and raw tool output already represented by a conclusion.
+
+## Net-negative patterns
+
+- Loading every reference because it might help.
+- Giant always-on instruction files.
+- Rebuilding context from scratch instead of leaving a receipt.
+- Aggressive log truncation followed by rerunning the same command.
+- Repeated broad scans after relevant files are known.
+- Compressing only final prose while claiming whole-session savings.
+- Adding agents, MCP tools, or process whose coordination costs exceed their value.
+
+## Measurement
+
+Do not promise a universal percentage. Compare realistic fresh-session tasks with and without the skill. Track separately:
+
+- task success and regressions;
+- input, output, cache, and reasoning tokens when available;
+- tool calls and repeated reads;
+- elapsed time and clarification rounds.
+
+Accept a token increase when it produces a material quality, safety, or debugging gain. Optimize for successful work per token, not the smallest transcript.

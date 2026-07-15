@@ -1,62 +1,50 @@
 ---
 name: super-dev
 description: >
-  Master engineering discipline: token economy, high-quality code, systematic
-  debugging, structured project delivery. AUTO-ACTIVE — apply from the first
-  message of every session and every prompt, for any coding, editing,
-  debugging, review, or project task. Also triggers on "super-dev",
-  "save tokens", "be brief", "debug", "refactor", "build", "implement".
+  Adaptive software-engineering discipline for coding, debugging, refactoring,
+  review, testing, and multi-file implementation. Use proactively for any
+  nontrivial engineering task, bug or test failure, performance investigation,
+  code-quality review, or request to reduce token use without reducing code
+  quality. Routes itself to only the relevant playbook.
 ---
 
-# super-dev — master engineering hub
+# super-dev
 
-Always active. This file = router + core laws. Load reference file ONLY when its trigger fires. Never load all references at once.
+Apply the baseline, classify the task, then load only the referenced playbook(s) whose trigger matches. Do not announce activation.
 
-## Reference routing (progressive disclosure)
+## Baseline
 
-| Trigger | Load |
+1. **Preserve quality.** Compress conversation and context, never code, commands, identifiers, errors, evidence, or safety warnings.
+2. **Inspect before editing.** Read repository instructions and nearby conventions. Search before broad reads; do not re-read unchanged content.
+3. **Reason from evidence.** Separate observed facts, inferences, and unknowns. Ask only when an unknown changes the implementation materially.
+4. **Keep scope surgical.** Every changed line must serve the request. Prefer the simplest design that satisfies current requirements.
+5. **Verify honestly.** Run the narrowest useful check while iterating, then the relevant full checks. Never claim an unrun check passed.
+6. **Protect the user.** Explain destructive, irreversible, security-sensitive, or costly actions plainly and request approval when needed.
+
+## Adaptive router
+
+Classify silently. A task may match more than one row; read each selected file once.
+
+| Signal | Read |
 |---|---|
-| Long session, big output, context pressure, user asks brevity | `references/token-economy.md` |
-| Writing/refactoring nontrivial code, review, comments question | `references/code-quality.md` |
-| Bug, test failure, unexpected behavior, error, regression | `references/debugging.md` |
-| New feature, new project, multi-file task, "build X" | `references/project-workflow.md` |
+| Context pressure, long/noisy session, large repository, token/cost request | `references/token-economy.md` |
+| Nontrivial code, refactor, code review, API/design decision | `references/code-quality.md` |
+| Bug, regression, failing test/build, performance or intermittent issue | `references/debugging.md` |
+| New feature/project, unclear requirements, multi-file or long-running work | `references/project-workflow.md` |
 
-Trivial task (one-line fix, quick question): core laws below suffice. No reference load.
+For a factual question or obvious one-line edit, use only the baseline. More process is not more quality.
 
-## Core laws (always on)
+## Effort and risk
 
-### L1 — Token economy (caveman principle)
-Prose terse. Code full quality. Compress mouth, not brain.
-- Drop filler (sure/certainly/basically/just), pleasantries, hedging, tool-call narration.
-- Pattern: `[thing] [state] [reason]. [next step].` Fragments OK.
-- Never compress: code blocks, commands, exact error strings, API names, security warnings, destructive-action confirmations.
-- No invented abbreviations (cfg/impl/req) — tokenizer saves nothing, reader loses clarity. Standard acronyms (DB/API/HTTP) OK.
-- Match user's language; compress style, not language.
-- Read before write: read only needed file regions (offset/limit, grep first). Never re-read unchanged files. Never dump long logs — quote decisive line.
+- **Low:** localized, reversible, clear. Inspect, change, targeted check.
+- **Medium:** behavior or multiple files. State compact plan, test changed behavior, review diff.
+- **High:** auth, money, data loss, concurrency, migration, public API, production. Make assumptions and invariants explicit; add rollback and broader verification.
 
-### L2 — Think before coding
-- State assumptions. Multiple interpretations → present, don't pick silently.
-- Simpler approach exists → say so. Unclear → ask, don't guess.
-- Plan in one compact block for multi-step work: `1. [step] → verify: [check]`.
+Escalate when evidence reveals higher risk. Do not downgrade solely to save tokens.
 
-### L3 — Simplicity first
-Minimum code that solves the problem. No speculative features, no single-use abstractions, no unrequested configurability, no error handling for impossible cases. Test: "Would a senior engineer call this overcomplicated?"
+## Output contract
 
-### L4 — Surgical changes
-Every changed line traces to the request. Don't improve adjacent code, don't reformat, match existing style. Remove only orphans YOUR change created. Notice unrelated dead code → mention, don't delete.
-
-### L5 — Root cause before fix
-No fix without understanding cause. Symptom patch = failure. Bug appears → load `references/debugging.md`.
-
-### L6 — Comments standard
-English only. Explain WHY, never narrate WHAT. No comment for self-evident code. Docstrings on public API only. No decorative banners, no changelog comments, no "// end of function".
-
-### L7 — Verify before done
-Run tests/build/lint after change. Never claim success unverified. Report: changed files, verification run, anything unverified.
-
-## Session protocol
-
-Start: apply laws immediately — no announcement, no "skill activated" message.
-During: route to references per table when triggers fire.
-End of significant work: compact handoff — changed / verified / unverified / next safe step.
-Override: user says "verbose" or "normal mode" → relax L1 only; other laws stay.
+- Match the user's language. Be concise by default; use full sentences where precision matters.
+- Report outcomes, not routine tool narration.
+- End significant work with: changed, verified, unverified/blockers, next action if any.
+- If the user asks for normal or verbose mode, relax prose compression only.
