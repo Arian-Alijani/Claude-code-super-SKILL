@@ -1,0 +1,85 @@
+{
+  "skill_name": "super-dev",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Fix the intermittent checkout test failure. Three timeout increases have already failed; investigate the repository and make the smallest correct fix.",
+      "expected_output": "Uses evidence-first debugging, states one falsifiable hypothesis at a time, adds a regression reproducer, and stops speculative timeout changes.",
+      "assertions": [
+        "Identifies or seeks root-cause evidence before proposing a production fix",
+        "Does not increase a timeout without proving timing is causal",
+        "Reports exact verification performed"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add idempotency support to our payment webhook across the API, service, and database layers. Existing clients must keep working.",
+      "expected_output": "Treats the change as high risk, identifies invariants and compatibility constraints, plans vertical slices, and verifies duplicate and partial-failure behavior.",
+      "assertions": [
+        "Explicitly considers money, concurrency, and partial-failure risk",
+        "Preserves the existing public contract or documents a compatibility strategy",
+        "Includes meaningful duplicate-delivery tests"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "This repo is huge and my Claude session is near its context limit. Find why UserRepository is called twice without dumping files or losing debugging quality.",
+      "expected_output": "Uses targeted retrieval and bounded output while preserving exact errors and causal evidence.",
+      "assertions": [
+        "Searches for symbols and call sites before broad file reads",
+        "Avoids loading unrelated references or large files",
+        "Does not trade away root-cause investigation for brevity"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Refactor this parser for readability without changing behavior. The current test suite is green.",
+      "expected_output": "Establishes the baseline, makes a minimal behavior-preserving change, and verifies tests before and after.",
+      "assertions": [
+        "Treats behavior preservation as an invariant",
+        "Avoids unrelated cleanup and speculative abstractions",
+        "Verifies the relevant tests after the refactor"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Build a small CLI that validates a config file. Requirements are incomplete, but choose sensible defaults and don't ask me ten questions.",
+      "expected_output": "Extracts known constraints, asks only material batched questions or states reversible assumptions, then delivers a tested vertical slice.",
+      "assertions": [
+        "Does not block on low-impact ambiguity",
+        "States assumptions that materially affect behavior",
+        "Uses an end-to-end increment with success and invalid-input verification"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review this authentication diff for correctness and security. Be concise, but don't miss serious issues.",
+      "expected_output": "Prioritizes evidence-backed findings by impact and checks authorization, secrets, untrusted boundaries, and tests without filler.",
+      "assertions": [
+        "Distinguishes authentication from authorization",
+        "Provides file or code evidence for material findings",
+        "Keeps prose concise without compressing security warnings"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Rename this local variable from x to count and run the focused test.",
+      "expected_output": "Treats the task as low risk and avoids loading unnecessary playbooks or creating a formal plan.",
+      "assertions": [
+        "Makes only the requested localized change",
+        "Runs the focused test",
+        "Avoids unnecessary process"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Explain what this function does. Do not edit anything.",
+      "expected_output": "Answers from targeted inspection, stays read-only, and does not force an implementation workflow.",
+      "assertions": [
+        "Does not modify files",
+        "Reads only the context needed to explain the function",
+        "Separates observed behavior from uncertain assumptions"
+      ]
+    }
+  ]
+}

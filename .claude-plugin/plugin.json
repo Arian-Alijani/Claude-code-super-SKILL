@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "super-dev",
+  "displayName": "Super Dev",
+  "version": "2.0.0",
+  "description": "Adaptive, token-aware engineering discipline for coding, debugging, review, and project delivery.",
+  "author": {
+    "name": "Arian Alijani"
+  },
+  "homepage": "https://github.com/Arian-Alijani/Claude-code-super-SKILL",
+  "repository": "https://github.com/Arian-Alijani/Claude-code-super-SKILL",
+  "license": "MIT",
+  "keywords": [
+    "coding",
+    "debugging",
+    "token-efficiency",
+    "code-quality",
+    "claude-code"
+  ]
+}

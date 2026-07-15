@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "super-dev-marketplace",
+  "owner": {
+    "name": "Arian Alijani"
+  },
+  "metadata": {
+    "description": "Adaptive engineering skills for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "super-dev",
+      "source": "./",
+      "description": "Token-aware coding, debugging, review, and project workflow with adaptive reference loading",
+      "version": "2.0.0"
+    }
+  ]
+}

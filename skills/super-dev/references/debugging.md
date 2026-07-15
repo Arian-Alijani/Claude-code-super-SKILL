@@ -1,46 +1,75 @@
-# Debugging — systematic and safe
+# Systematic debugging
 
-Iron law: NO FIX WITHOUT ROOT CAUSE. Random patches waste tokens, mask bugs, create new ones. Systematic ~4x faster than guess-and-check (15-30 min vs 2-3 h thrashing).
+Rule: investigate before changing behavior. The goal is the earliest causal fault, not the latest visible symptom.
 
-## Phase 1 — Investigate
+## 1. Establish facts
 
-1. Read the error COMPLETELY: stack trace, line numbers, codes. Answer often inside.
-2. Reproduce reliably. Not reproducible → gather data, don't guess.
-3. Check recent changes: `git diff`, recent commits, new deps, config, environment.
-4. Multi-component system (API → service → DB): instrument each boundary — log what enters/exits — run once, see WHERE it breaks, then dig there.
-5. Trace bad value backward to its origin. Fix at source, not where it surfaced.
+- Read the complete primary error, stack, timestamps, exit status, and relevant surrounding logs.
+- Reproduce with the smallest reliable command and record expected versus actual behavior.
+- If intermittent, record frequency and correlated input, timing, load, environment, and state. Do not call non-reproduction a fix.
+- Check recent code, dependency, configuration, data, and environment changes.
+- Separate facts from hypotheses. Preserve exact errors and commands.
 
-## Phase 2 — Compare
+For production incidents, stabilize user impact first with a safe, reversible mitigation when necessary. Label mitigation as such; continue root-cause work.
 
-- Find similar WORKING code in the same codebase.
-- List every difference vs the broken path — never assume "that can't matter".
-- Implementing a known pattern? Read the reference implementation fully, not skim.
+## 2. Localize the fault
 
-## Phase 3 — Hypothesize
+Trace the failing value or state backward:
 
-- One specific hypothesis: "X causes it because Y."
-- Test with SMALLEST possible change. One variable at a time.
-- Failed → new hypothesis. Never stack fix on failed fix.
-- Don't know → say so, research; don't pretend.
+1. Where is it first observed wrong?
+2. Which caller or boundary supplied it?
+3. Where was that value created or transformed?
+4. What invariant should have rejected or prevented it?
 
-## Phase 4 — Fix
+For multi-component paths, inspect one request or correlation ID across each boundary. Capture sanitized inputs, outputs, state, configuration presence, and timing. Never log secrets merely to debug faster.
 
-1. Failing test reproducing the bug FIRST (automated, or one-off script if no framework).
-2. One fix, addressing root cause. No "while I'm here" changes.
-3. Verify: repro test passes, no other test broke.
-4. Fix #3 failed → STOP. Pattern of fixes each revealing new coupling = architecture problem, not bug. Discuss with user before fix #4.
+Use narrowing techniques appropriate to the issue:
 
-## Safety (edits during debug)
+- compare with the nearest working path;
+- binary-search commits, inputs, or pipeline stages;
+- inspect ownership and happens-before relationships for concurrency;
+- profile before optimizing performance;
+- replace fixed sleeps with observable conditions when testing timing behavior;
+- verify environment parity for "works locally" failures.
 
-- Know the rollback point before touching anything: clean commit or stash.
-- Destructive/irreversible operations (migrations, deletes, force-push): plain-language warning + explicit confirmation. Never compressed.
-- Debug instrumentation is temporary — remove before commit, or mark and tell user.
-- Never "fix" by weakening the test or widening a catch block.
+## 3. Form and test one hypothesis
 
-## Red flags — stop, return to Phase 1
+Write: **X causes the failure because evidence Y; observation Z would disprove it.**
 
-"Quick fix for now" · "just try changing X" · multiple changes then run tests · "probably X, let me fix" · skipping repro test · proposing fixes before tracing data flow · fix attempt #3+.
+Test the smallest discriminating change or experiment. Change one variable. A failed hypothesis must be removed or reverted before the next test; do not stack speculative patches.
 
-## No root cause found?
+If evidence is insufficient, gather better evidence or research the unknown. Confidence is not evidence.
 
-95% of the time = incomplete investigation. Truly environmental/timing/external after full process: document what was ruled out, add handling (retry/timeout/clear error) + logging for next time.
+## 4. Fix at the source
+
+1. Add the smallest regression test or deterministic reproducer and observe the expected failure.
+2. Implement one root-cause fix.
+3. Observe the reproducer pass for the intended reason.
+4. Run adjacent and broader checks based on blast radius.
+5. Remove temporary instrumentation, or explicitly retain sanitized diagnostics that have operational value.
+
+Do not "fix" by weakening assertions, hiding errors, adding an unbounded retry, widening a catch, disabling a check, or increasing a timeout without proving timing is the cause.
+
+## Failed-fix circuit breaker
+
+After each failed fix, return to evidence and update the hypothesis. After three failed implementation attempts, stop patching and review assumptions and architecture with the user. Repeated failures across coupled areas often indicate a flawed model, hidden shared state, or an invalid contract.
+
+## Intermittent, external, or environmental causes
+
+When a fully investigated cause is outside the codebase:
+
+- document evidence and ruled-out causes;
+- add bounded timeout/retry/circuit-breaker behavior only where the operation is safe and idempotent;
+- produce a specific actionable error;
+- add sanitized telemetry that will distinguish the next occurrence;
+- test failure handling, not only the happy path.
+
+## Debugging receipt
+
+Report compactly:
+
+- **Reproduction:** command/input and observed failure.
+- **Root cause:** earliest faulty assumption or transition, with evidence.
+- **Fix:** why the change addresses that cause.
+- **Verification:** regression and broader checks run.
+- **Remaining risk:** intermittent behavior, missing environment, or unverified production condition.
